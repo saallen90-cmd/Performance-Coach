@@ -78,7 +78,7 @@ hr{border:0;border-top:1px solid var(--line);margin:12px 0}
     <div class="brand">Performance Coach</div>
     <div class="mini" id="todayText"></div>
   </div>
-  <div class="pill" id="weekPill">Week 1</div>
+  <div class="pill" id="weekPill">Week 1 · v1.1</div>
 </header>
 
 <section id="screen-home">
@@ -95,6 +95,8 @@ hr{border:0;border-top:1px solid var(--line);margin:12px 0}
 
   <div class="card">
     <div class="row"><h2>Today's Plan</h2><button onclick="go('workout')">Start</button></div>
+    <label class="mini">Change today's workout</label>
+    <select id="todayWorkoutOverride" onchange="setTodayWorkout(this.value)" style="margin:6px 0 12px"></select>
     <div id="todayPlan"></div>
   </div>
 
@@ -246,7 +248,7 @@ legs:["Hip flexor couch stretch — 60 sec each side","Hamstring stretch — 45 
 };
 
 function defaultState(){
- return {created:new Date().toISOString(), week:1, currentWorkout:null, workouts:[], runs:[], recovery:[], weights:[], targets:{}, oneRM:{bench:105,squat:130,ohp:50,row:90}};
+ return {created:new Date().toISOString(), week:1, currentWorkout:null, dayOverrides:{}, workouts:[], runs:[], recovery:[], weights:[], targets:{}, oneRM:{bench:105,squat:130,ohp:50,row:90}};
 }
 let state=load();
 function load(){try{return JSON.parse(localStorage.getItem(LS))||defaultState()}catch(e){return defaultState()}}
@@ -256,10 +258,26 @@ function initTargets(){
  persist();
 }
 initTargets();
+if(!state.dayOverrides){state.dayOverrides={}; persist();}
 
-function todayWorkoutName(){
- const day=new Date().getDay();
+function dateKey(d=new Date()){
+ return d.toISOString().slice(0,10);
+}
+function scheduledWorkoutName(d=new Date()){
+ const day=d.getDay();
+ // Monday is the first training session of the week.
  return {1:"Push A",2:"Pull A",3:"Run",4:"Legs",5:"Push B",6:"Pull B",0:"Rest"}[day];
+}
+function todayWorkoutName(){
+ const key=dateKey();
+ return state.dayOverrides[key] || scheduledWorkoutName();
+}
+function setTodayWorkout(name){
+ state.dayOverrides[dateKey()] = name;
+ persist();
+ if(document.getElementById("workoutSelect") && baseProgram[name]) document.getElementById("workoutSelect").value=name;
+ renderHome();
+ renderWorkout();
 }
 function screen(id){return document.getElementById("screen-"+id)}
 function go(id){
@@ -270,11 +288,12 @@ function go(id){
 }
 function setup(){
  document.getElementById("todayText").innerText=new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"short"});
- document.getElementById("weekPill").innerText="Week "+state.week;
+ document.getElementById("weekPill").innerText="Week "+state.week+" · v1.1";
  const sel=document.getElementById("workoutSelect");
  sel.innerHTML=Object.keys(baseProgram).map(w=>`<option>${w}</option>`).join("");
  const tw=todayWorkoutName();
  if(baseProgram[tw]) sel.value=tw;
+ else sel.value="Push A";
  renderHome(); renderWorkout(); renderLibrary();
 }
 function latestRecovery(){
@@ -304,12 +323,18 @@ function renderHome(){
   el.innerText=kg(state.oneRM[k]||{bench:105,squat:130,ohp:50,row:90}[k]);
  });
  const tw=todayWorkoutName();
+ const override=document.getElementById("todayWorkoutOverride");
+ if(override){
+   const options=["Push A","Pull A","Run","Legs","Push B","Pull B","Rest"];
+   override.innerHTML=options.map(o=>`<option ${o===tw?"selected":""}>${o}</option>`).join("");
+ }
  let plan="";
  if(baseProgram[tw]) baseProgram[tw].forEach(ex=>{
   const t=state.targets[ex.key];
   plan+=`<div class="listitem"><div><b>${ex.name}</b><br><span class="mini">${ex.targetSets}×${ex.targetReps} • ${ex.muscle}</span></div><div class="badge">${ex.type==="bodyweight"&&t.weight===0?"BW":kg(t.weight)}</div></div>`;
  });
- else plan="<p>Run 4-5km easy or take a full rest day.</p>";
+ else if(tw==="Run") plan="<p>Run 4-5km easy. Keep it conversational. Log distance, time and RPE afterwards.</p>";
+ else plan="<p>Full rest day. Optional mobility only.</p>";
  document.getElementById("todayPlan").innerHTML=plan;
  const notes=[];
  if(rs===null) notes.push("Complete a recovery check-in to personalise today's intensity.");
