@@ -1,0 +1,22 @@
+{
+  "name": "Performance Coach",
+  "short_name": "Coach",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#070908",
+  "theme_color": "#0f5f45",
+  "description": "Sam's progressive overload strength, running and recovery tracker.",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
