@@ -1,4 +1,4 @@
-const CACHE_NAME = 'performance-coach-v1-1';
+const CACHE_NAME = 'performance-coach-v1-2';
 const ASSETS = [
   './',
   './index.html',
@@ -21,6 +21,10 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request).then(cached => cached || fetch(event.request))
+    fetch(event.request).then(response => {
+      const copy = response.clone();
+      caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy)).catch(() => {});
+      return response;
+    }).catch(() => caches.match(event.request))
   );
 });

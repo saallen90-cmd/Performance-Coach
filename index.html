@@ -78,13 +78,13 @@ hr{border:0;border-top:1px solid var(--line);margin:12px 0}
     <div class="brand">Performance Coach</div>
     <div class="mini" id="todayText"></div>
   </div>
-  <div class="pill" id="weekPill">Week 1 · v1.1</div>
+  <div class="pill" id="weekPill">Week 1 · v1.2</div>
 </header>
 
 <section id="screen-home">
   <div class="hero">
     <h1 id="greeting">Good evening Sam</h1>
-    <p>Your progressive overload programme, running and mobility tracker.</p>
+    <p>Your progressive overload programme, running and mobility tracker.</p><p class="mini ok">Version 1.2 active — workout day selector added.</p>
     <div class="grid" style="margin-top:14px">
       <div class="metric"><span>Today</span><b id="todayWorkout">Push A</b></div>
       <div class="metric"><span>Readiness</span><b id="homeReadiness">—</b></div>
@@ -288,7 +288,7 @@ function go(id){
 }
 function setup(){
  document.getElementById("todayText").innerText=new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"short"});
- document.getElementById("weekPill").innerText="Week "+state.week+" · v1.1";
+ document.getElementById("weekPill").innerText="Week "+state.week+" · v1.2";
  const sel=document.getElementById("workoutSelect");
  sel.innerHTML=Object.keys(baseProgram).map(w=>`<option>${w}</option>`).join("");
  const tw=todayWorkoutName();
