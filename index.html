@@ -69,6 +69,14 @@ canvas{width:100%;height:180px}
 hr{border:0;border-top:1px solid var(--line);margin:12px 0}
 .notice{border-left:3px solid var(--accent2);padding:8px 10px;background:rgba(43,182,115,.08);border-radius:10px;color:#dbe8df}
 @media(min-width:760px){.grid{grid-template-columns:repeat(4,1fr)}.app{padding-left:20px;padding-right:20px}.tab{font-size:12px}}
+
+.edit-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.library-grid{display:grid;grid-template-columns:1fr;gap:10px}
+.library-card{border:1px solid var(--line);background:rgba(255,255,255,.035);border-radius:16px;padding:12px}
+.library-card b{display:block;margin-bottom:4px}
+.inline-form{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.inline-form .full{grid-column:1/-1}
+.tiny{font-size:11px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -78,13 +86,13 @@ hr{border:0;border-top:1px solid var(--line);margin:12px 0}
     <div class="brand">Performance Coach</div>
     <div class="mini" id="todayText"></div>
   </div>
-  <div class="pill" id="weekPill">Week 1 · v1.2</div>
+  <div class="pill" id="weekPill">Week 1 · v1.3</div>
 </header>
 
 <section id="screen-home">
   <div class="hero">
     <h1 id="greeting">Good evening Sam</h1>
-    <p>Your progressive overload programme, running and mobility tracker.</p><p class="mini ok">Version 1.2 active — workout day selector added.</p>
+    <p>Your progressive overload programme, running and mobility tracker.</p><p class="mini ok">Version 1.3 active — editable workouts and exercise library added.</p>
     <div class="grid" style="margin-top:14px">
       <div class="metric"><span>Today</span><b id="todayWorkout">Push A</b></div>
       <div class="metric"><span>Readiness</span><b id="homeReadiness">—</b></div>
@@ -121,6 +129,11 @@ hr{border:0;border-top:1px solid var(--line);margin:12px 0}
     <h2>Workout Logger</h2>
     <select id="workoutSelect" onchange="renderWorkout()"></select>
     <p class="mini">Log weight, reps and RPE per set. Recommendations update after you save.</p>
+    <div class="edit-actions">
+      <button class="secondary" onclick="toggleWorkoutEditor()">Edit Workout</button>
+      <button class="secondary" onclick="showAddExerciseToWorkout()">Add Exercise</button>
+    </div>
+    <div id="workoutEditor" class="hide" style="margin-top:12px"></div>
   </div>
   <div id="workoutList"></div>
   <div class="card">
@@ -174,6 +187,24 @@ hr{border:0;border-top:1px solid var(--line);margin:12px 0}
   <div class="card">
     <h2>Programme & Mobility</h2>
     <p>This plan hits push and pull twice weekly, legs once weekly, plus one 4-5k run and optional 2k easy run before Push B.</p>
+  </div>
+  <div class="card">
+    <h2>Exercise Depository</h2>
+    <p class="mini">Add new exercises here, then use them inside any workout.</p>
+    <div class="inline-form">
+      <input id="newExName" class="full" placeholder="Exercise name">
+      <input id="newExMuscle" placeholder="Muscle group">
+      <select id="newExType">
+        <option>barbell</option><option>dumbbell</option><option>cable</option><option>bodyweight</option><option>cardio</option><option>mobility</option>
+      </select>
+      <input id="newExSets" type="number" placeholder="Sets" value="3">
+      <input id="newExReps" type="number" placeholder="Reps" value="10">
+      <input id="newExWeight" type="number" step="0.5" placeholder="Start kg" value="0">
+      <input id="newExInc" type="number" step="0.5" placeholder="Increase kg" value="2.5">
+      <button class="full" onclick="addExerciseToLibrary()">Add Exercise to Library</button>
+    </div>
+    <hr>
+    <div id="exerciseLibraryList" class="library-grid"></div>
   </div>
   <div class="card"><h2>Stretch Guide</h2><div id="stretchGuide"></div></div>
   <div class="card"><h2>Data</h2>
@@ -241,6 +272,29 @@ const baseProgram={
  {name:"Farmer Carries", key:"farmers", muscle:"Grip/Core/Posture", targetSets:3, targetReps:40, weight:40, inc:2, type:"dumbbell", stretch:"pull"}
 ]};
 
+
+function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
+function slugify(str){
+ return String(str).toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"").slice(0,40) || ("exercise_"+Date.now());
+}
+function getProgram(){
+ if(!state.customProgram) state.customProgram = clone(baseProgram);
+ return state.customProgram;
+}
+function allLibraryExercises(){
+ if(!state.exerciseLibrary){
+   const seen={};
+   const arr=[];
+   Object.values(baseProgram).flat().forEach(ex=>{
+     if(!seen[ex.key]){ seen[ex.key]=true; arr.push(clone(ex)); }
+   });
+   state.exerciseLibrary=arr;
+   persist();
+ }
+ return state.exerciseLibrary;
+}
+function saveProgram(){ persist(); initTargets(); renderHome(); renderWorkout(); renderLibrary(); }
+
 const stretches={
 push:["Doorway chest stretch — 45 sec each side","Pec minor wall stretch — 45 sec each side","Cross-body shoulder stretch — 45 sec each side","Triceps overhead stretch — 45 sec each side","Thoracic extension over bench — 60 sec"],
 pull:["Lat stretch hanging from pull-up bar — 45 sec","Child's pose with side reach — 45 sec each side","Biceps wall stretch — 45 sec each side","Thoracic open books — 8 each side","Neck/upper trap stretch — 30 sec each side"],
@@ -248,13 +302,21 @@ legs:["Hip flexor couch stretch — 60 sec each side","Hamstring stretch — 45 
 };
 
 function defaultState(){
- return {created:new Date().toISOString(), week:1, currentWorkout:null, dayOverrides:{}, workouts:[], runs:[], recovery:[], weights:[], targets:{}, oneRM:{bench:105,squat:130,ohp:50,row:90}};
+ return {created:new Date().toISOString(), week:1, currentWorkout:null, dayOverrides:{}, customProgram:null, exerciseLibrary:null, workouts:[], runs:[], recovery:[], weights:[], targets:{}, oneRM:{bench:105,squat:130,ohp:50,row:90}};
 }
 let state=load();
 function load(){try{return JSON.parse(localStorage.getItem(LS))||defaultState()}catch(e){return defaultState()}}
 function persist(){localStorage.setItem(LS,JSON.stringify(state))}
 function initTargets(){
- Object.values(baseProgram).flat().forEach(ex=>{ if(!state.targets[ex.key]) state.targets[ex.key]={weight:ex.weight, targetReps:ex.targetReps, streak:0}; });
+ const program = state.customProgram || baseProgram;
+ Object.values(program).flat().forEach(ex=>{ 
+   if(!state.targets[ex.key]) state.targets[ex.key]={weight:+ex.weight||0, targetReps:+ex.targetReps||8, streak:0}; 
+ });
+ if(state.exerciseLibrary){
+   state.exerciseLibrary.forEach(ex=>{
+     if(!state.targets[ex.key]) state.targets[ex.key]={weight:+ex.weight||0, targetReps:+ex.targetReps||8, streak:0};
+   });
+ }
  persist();
 }
 initTargets();
@@ -288,11 +350,11 @@ function go(id){
 }
 function setup(){
  document.getElementById("todayText").innerText=new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"short"});
- document.getElementById("weekPill").innerText="Week "+state.week+" · v1.2";
+ document.getElementById("weekPill").innerText="Week "+state.week+" · v1.3";
  const sel=document.getElementById("workoutSelect");
- sel.innerHTML=Object.keys(baseProgram).map(w=>`<option>${w}</option>`).join("");
+ sel.innerHTML=Object.keys(getProgram()).map(w=>`<option>${w}</option>`).join("");
  const tw=todayWorkoutName();
- if(baseProgram[tw]) sel.value=tw;
+ if(getProgram()[tw]) sel.value=tw;
  else sel.value="Push A";
  renderHome(); renderWorkout(); renderLibrary();
 }
@@ -329,7 +391,7 @@ function renderHome(){
    override.innerHTML=options.map(o=>`<option ${o===tw?"selected":""}>${o}</option>`).join("");
  }
  let plan="";
- if(baseProgram[tw]) baseProgram[tw].forEach(ex=>{
+ if(getProgram()[tw]) getProgram()[tw].forEach(ex=>{
   const t=state.targets[ex.key];
   plan+=`<div class="listitem"><div><b>${ex.name}</b><br><span class="mini">${ex.targetSets}×${ex.targetReps} • ${ex.muscle}</span></div><div class="badge">${ex.type==="bodyweight"&&t.weight===0?"BW":kg(t.weight)}</div></div>`;
  });
@@ -355,9 +417,12 @@ function volumeByMuscle(m){
 
 function renderWorkout(){
  const name=document.getElementById("workoutSelect").value;
+ const program=getProgram();
  const list=document.getElementById("workoutList"); list.innerHTML="";
- baseProgram[name].forEach((ex,idx)=>{
-  const t=state.targets[ex.key]; const prev=previousExercise(ex.key);
+ if(!program[name]) return;
+ program[name].forEach((ex,idx)=>{
+  const t=state.targets[ex.key] || {weight:+ex.weight||0,targetReps:+ex.targetReps||8,streak:0}; 
+  const prev=previousExercise(ex.key);
   let html=`<div class="exercise"><div class="exercise-title"><div><b>${ex.name}</b><br><span class="mini">${ex.muscle} • Target ${ex.targetSets}×${ex.targetReps}${prev?` • Previous ${prev.summary}`:""}</span></div><div class="badge">${ex.type==="bodyweight"&&t.weight===0?"BW":kg(t.weight)}</div></div>`;
   html+=`<div class="setgrid"><label>Set</label><label>Weight</label><label>Reps</label><label>RPE</label>`;
   for(let s=1;s<=ex.targetSets;s++){
@@ -366,6 +431,74 @@ function renderWorkout(){
   html+=`</div><div class="row" style="margin-top:10px"><button class="ghost smallbtn" onclick="adjust('${ex.key}',-2.5)">-2.5</button><button class="ghost smallbtn" onclick="repeatPrev('${ex.key}')">Repeat previous</button><button class="ghost smallbtn" onclick="adjust('${ex.key}',2.5)">+2.5</button></div></div>`;
   list.innerHTML+=html;
  });
+ renderWorkoutEditor();
+}
+function toggleWorkoutEditor(){
+ const el=document.getElementById("workoutEditor");
+ el.classList.toggle("hide");
+ renderWorkoutEditor();
+}
+function renderWorkoutEditor(){
+ const el=document.getElementById("workoutEditor");
+ if(!el || el.classList.contains("hide")) return;
+ const name=document.getElementById("workoutSelect").value;
+ const program=getProgram();
+ const exercises=program[name]||[];
+ let out=`<h3>Edit ${name}</h3><p class="mini">Changes save to this device and affect future sessions.</p>`;
+ exercises.forEach((ex,i)=>{
+   out+=`<div class="library-card">
+     <b>${ex.name}</b><span class="tiny">${ex.muscle} • ${ex.type}</span>
+     <div class="inline-form" style="margin-top:8px">
+       <input value="${ex.name}" onchange="editWorkoutExercise('${name}',${i},'name',this.value)">
+       <input value="${ex.muscle}" onchange="editWorkoutExercise('${name}',${i},'muscle',this.value)">
+       <input type="number" value="${ex.targetSets}" onchange="editWorkoutExercise('${name}',${i},'targetSets',this.value)">
+       <input type="number" value="${ex.targetReps}" onchange="editWorkoutExercise('${name}',${i},'targetReps',this.value)">
+       <input type="number" step="0.5" value="${ex.weight}" onchange="editWorkoutExercise('${name}',${i},'weight',this.value)">
+       <input type="number" step="0.5" value="${ex.inc}" onchange="editWorkoutExercise('${name}',${i},'inc',this.value)">
+     </div>
+     <div class="edit-actions">
+       <button class="ghost" onclick="moveExercise('${name}',${i},-1)">Move Up</button>
+       <button class="ghost" onclick="moveExercise('${name}',${i},1)">Move Down</button>
+       <button class="danger" onclick="removeExerciseFromWorkout('${name}',${i})">Remove</button>
+     </div>
+   </div>`;
+ });
+ el.innerHTML=out;
+}
+function editWorkoutExercise(workout,index,field,value){
+ const program=getProgram();
+ const ex=program[workout][index];
+ if(["targetSets","targetReps"].includes(field)) value=parseInt(value)||1;
+ if(["weight","inc"].includes(field)) value=parseFloat(value)||0;
+ ex[field]=value;
+ if(field==="name" && !ex.key) ex.key=slugify(value);
+ if(!state.targets[ex.key]) state.targets[ex.key]={weight:+ex.weight||0,targetReps:+ex.targetReps||8,streak:0};
+ if(field==="weight") state.targets[ex.key].weight=+value||0;
+ if(field==="targetReps") state.targets[ex.key].targetReps=+value||8;
+ saveProgram();
+}
+function removeExerciseFromWorkout(workout,index){
+ if(!confirm("Remove this exercise from the workout?")) return;
+ getProgram()[workout].splice(index,1);
+ saveProgram();
+}
+function moveExercise(workout,index,dir){
+ const arr=getProgram()[workout];
+ const ni=index+dir;
+ if(ni<0 || ni>=arr.length) return;
+ [arr[index],arr[ni]]=[arr[ni],arr[index]];
+ saveProgram();
+}
+function showAddExerciseToWorkout(){
+ const name=document.getElementById("workoutSelect").value;
+ const lib=allLibraryExercises();
+ const list=lib.map((ex,i)=>`${i+1}. ${ex.name} (${ex.muscle})`).join("\\n");
+ const choice=prompt(`Add which exercise to ${name}? Enter number:\\n\\n${list}`);
+ const idx=parseInt(choice)-1;
+ if(isNaN(idx) || !lib[idx]) return;
+ getProgram()[name].push(clone(lib[idx]));
+ saveProgram();
+ alert(lib[idx].name+" added to "+name+".");
 }
 function adjust(key,delta){
  document.querySelectorAll(`[id^="${key}_w_"]`).forEach(i=>i.value=(+i.value+delta).toFixed(1).replace(".0",""));
@@ -390,7 +523,7 @@ function epley(w,r){return w*(1+r/30)}
 function saveWorkout(){
  const name=document.getElementById("workoutSelect").value;
  const exercises=[]; let totalVol=0;
- baseProgram[name].forEach(ex=>{
+ getProgram()[name].forEach(ex=>{
   const sets=[]; let vol=0; let bestE=0; let allHit=true; let bad=false;
   for(let s=1;s<=ex.targetSets;s++){
    const weight=+document.getElementById(`${ex.key}_w_${s}`).value||0;
@@ -443,9 +576,79 @@ function drawVolume(){
  vals.forEach((v,i)=>{const h=(v/max)*130; ctx.fillStyle="#2bb673"; ctx.fillRect(i*w+8,150-h,w-16,h);});
 }
 function renderLibrary(){
+ const libEl=document.getElementById("exerciseLibraryList");
+ if(libEl){
+   const workouts=Object.keys(getProgram());
+   libEl.innerHTML=allLibraryExercises().map((ex,i)=>`
+     <div class="library-card">
+       <b>${ex.name}</b>
+       <div class="tiny">${ex.muscle} • ${ex.type} • ${ex.targetSets}×${ex.targetReps} • Start ${kg(+ex.weight||0)}</div>
+       <div class="row" style="margin-top:8px">
+         <select id="add_${i}">${workouts.map(w=>`<option>${w}</option>`).join("")}</select>
+         <button class="smallbtn" onclick="addLibraryExerciseToWorkout(${i},document.getElementById('add_${i}').value)">Add</button>
+       </div>
+       <button class="ghost smallbtn" style="margin-top:8px;width:100%" onclick="deleteLibraryExercise(${i})">Delete from Library</button>
+     </div>`).join("");
+ }
  stretchGuide.innerHTML=Object.entries(stretches).map(([k,arr])=>`<h3>${k[0].toUpperCase()+k.slice(1)}</h3>`+arr.map(x=>`<div class="listitem"><span>${x}</span><button class="ghost smallbtn" onclick="timer(45)">Timer</button></div>`).join("")).join("");
+ const dataCard=document.querySelector("#screen-library .card:last-child .stack");
+ if(dataCard && !document.getElementById("resetProgrammeBtn")){
+   const btn=document.createElement("button");
+   btn.id="resetProgrammeBtn";
+   btn.className="secondary";
+   btn.textContent="Reset Programme to Default";
+   btn.onclick=resetProgramme;
+   dataCard.insertBefore(btn,dataCard.firstChild);
+ }
 }
 function timer(sec){ alert("Start a "+sec+" second stretch timer. Use your phone timer for now — built-in countdown comes next."); }
+
+function addExerciseToLibrary(){
+ const name=(document.getElementById("newExName").value||"").trim();
+ if(!name) return alert("Add an exercise name first.");
+ const ex={
+   name,
+   key:"custom_"+slugify(name)+"_"+Date.now().toString().slice(-5),
+   muscle:(document.getElementById("newExMuscle").value||"General").trim(),
+   type:document.getElementById("newExType").value,
+   targetSets:+document.getElementById("newExSets").value||3,
+   targetReps:+document.getElementById("newExReps").value||10,
+   weight:+document.getElementById("newExWeight").value||0,
+   inc:+document.getElementById("newExInc").value||2.5,
+   stretch:""
+ };
+ allLibraryExercises().push(ex);
+ state.targets[ex.key]={weight:ex.weight,targetReps:ex.targetReps,streak:0};
+ persist();
+ document.getElementById("newExName").value="";
+ document.getElementById("newExMuscle").value="";
+ renderLibrary();
+ alert(ex.name+" added to your exercise depository.");
+}
+function addLibraryExerciseToWorkout(libIndex, workout){
+ const ex=allLibraryExercises()[libIndex];
+ if(!ex || !getProgram()[workout]) return;
+ getProgram()[workout].push(clone(ex));
+ saveProgram();
+ alert(ex.name+" added to "+workout+".");
+}
+function deleteLibraryExercise(libIndex){
+ const ex=allLibraryExercises()[libIndex];
+ if(!ex) return;
+ if(!confirm("Delete "+ex.name+" from the exercise depository? It will not remove it from existing workouts.")) return;
+ state.exerciseLibrary.splice(libIndex,1);
+ persist();
+ renderLibrary();
+}
+function resetProgramme(){
+ if(!confirm("Reset all workout edits back to the original programme? Your logged sessions will remain.")) return;
+ state.customProgram=clone(baseProgram);
+ persist();
+ initTargets();
+ renderHome(); renderWorkout(); renderLibrary();
+ alert("Programme reset to default.");
+}
+
 function exportData(){
  const blob=JSON.stringify(state,null,2); navigator.clipboard?.writeText(blob);
  alert("Backup copied to clipboard. You can also select the text from the next prompt if needed."); prompt("Copy your backup:",blob);
