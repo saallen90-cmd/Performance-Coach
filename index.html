@@ -2,311 +2,127 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#050706">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon-192.png">
-<title>Seebo Strength</title>
+<title>Seebo Strength Data Rescue</title>
 <style>
-:root{
- --bg:#050706;--panel:#0d1110;--panel2:#131917;--text:#f4f1eb;--muted:#a6ada8;
- --green:#39d353;--green2:#0f7d3b;--line:#26342c;--amber:#f2b84b;--red:#e55353;
- --silver:#d8d6cf;--input:#070b09;
-}
-*{box-sizing:border-box}
-body{margin:0;background:radial-gradient(circle at top,#0e1711 0,#050706 46%,#020303 100%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);min-height:100vh}
-.app{max-width:960px;margin:auto;padding:16px 14px 88px}
-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.logo{text-align:center;letter-spacing:.18em}
-.logo .ss{font-size:34px;line-height:.85;font-weight:900;background:linear-gradient(#fff,#9b9b96);-webkit-background-clip:text;color:transparent;letter-spacing:-.08em}
-.logo .brand{font-size:10px;color:var(--text);font-weight:800}.logo .brand span{color:var(--green)}
-.iconbtn,.pill{border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);border-radius:999px;padding:9px 12px;font-size:12px}
-.hero,.card{background:linear-gradient(145deg,rgba(18,25,21,.94),rgba(8,11,9,.96));border:1px solid var(--line);border-radius:22px;padding:15px;margin:12px 0;box-shadow:0 16px 34px rgba(0,0,0,.28)}
-.hero{padding:18px}
-h1{font-size:26px;line-height:1.05;margin:0 0 6px}h2{font-size:18px;margin:0 0 10px}h3{font-size:15px;margin:14px 0 8px}
-p{color:var(--muted);line-height:1.38;margin:6px 0}.mini{font-size:12px;color:var(--muted)}.ok{color:var(--green)}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.metric{background:rgba(255,255,255,.045);border:1px solid var(--line);border-radius:16px;padding:12px}.metric span{font-size:12px;color:var(--muted)}.metric b{display:block;font-size:22px;margin-top:4px}.metric small{color:var(--green)}
-button{border:0;border-radius:14px;background:linear-gradient(180deg,#158d43,#0d6c34);color:white;font:inherit;font-weight:800;padding:12px 14px}
-button.secondary{background:#1b231f;border:1px solid var(--line);color:#e9e4d8}button.ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}button.danger{background:var(--red)}
-input,select,textarea{width:100%;background:var(--input);border:1px solid var(--line);border-radius:13px;color:var(--text);padding:11px;font-size:16px}textarea{min-height:76px}
-.row{display:flex;gap:8px;align-items:center;justify-content:space-between}.stack{display:flex;flex-direction:column;gap:9px}.hide{display:none!important}
-.tabs{position:fixed;left:0;right:0;bottom:0;background:rgba(5,7,6,.95);backdrop-filter:blur(14px);border-top:1px solid var(--line);z-index:10}.tabbar{max-width:960px;margin:auto;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;padding:8px 8px calc(8px + env(safe-area-inset-bottom))}.tab{background:transparent;color:var(--muted);font-size:11px;padding:8px 2px;border-radius:13px}.tab.active{background:#111a14;color:var(--green)}
-.exercise,.library-card{border:1px solid var(--line);background:rgba(255,255,255,.035);border-radius:17px;padding:12px;margin:10px 0}.exercise-title{display:flex;justify-content:space-between;gap:8px}.badge{font-size:11px;background:rgba(57,211,83,.14);border:1px solid rgba(57,211,83,.28);padding:5px 8px;border-radius:999px;color:#d9ffe0;white-space:nowrap}
-.setgrid{display:grid;grid-template-columns:35px 1fr 1fr 1fr;gap:6px;align-items:center;margin-top:9px}.setgrid label{font-size:11px;color:var(--muted);text-align:center}.setnum{font-size:12px;color:var(--muted)}
-.listitem{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.listitem:last-child{border-bottom:0}
-.rec{border:1px solid var(--line);border-left:4px solid var(--green);background:rgba(57,211,83,.07);border-radius:14px;padding:10px;margin-top:8px}.rec.hold{border-left-color:var(--amber);background:rgba(242,184,75,.08)}.rec.reduce{border-left-color:var(--red);background:rgba(229,83,83,.08)}
-.inline-form{display:grid;grid-template-columns:1fr 1fr;gap:8px}.full{grid-column:1/-1}.edit-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
-.ring{width:118px;height:118px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--green) calc(var(--score)*1%),#202722 0);margin:auto}.ring-inner{width:92px;height:92px;border-radius:50%;background:#0a0f0c;display:grid;place-items:center;text-align:center}.ring b{font-size:32px}
-.progressbar{height:9px;background:#202722;border-radius:999px;overflow:hidden}.progressbar div{height:100%;background:linear-gradient(90deg,var(--green2),var(--green))}
-canvas{width:100%;height:180px}
-@media(min-width:760px){.grid{grid-template-columns:repeat(4,1fr)}.tab{font-size:12px}.app{padding-left:20px;padding-right:20px}}
+body{margin:0;background:#050706;color:#f4f1eb;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;padding:18px;max-width:900px;margin:auto}
+.card{background:#0d1110;border:1px solid #26342c;border-radius:20px;padding:16px;margin:14px 0}
+h1{margin:0 0 8px;font-size:26px}h2{font-size:18px}.mini,p{color:#a6ada8;line-height:1.4}
+button{border:0;border-radius:14px;background:linear-gradient(180deg,#158d43,#0d6c34);color:white;font:inherit;font-weight:800;padding:12px 14px;margin:6px 0;width:100%}
+button.secondary{background:#1b231f;border:1px solid #26342c;color:#e9e4d8}
+textarea{width:100%;min-height:260px;background:#070b09;border:1px solid #26342c;border-radius:14px;color:#f4f1eb;padding:12px;font-size:12px}
+.ok{color:#39d353}.warn{color:#f2b84b}.bad{color:#e55353}
+.stat{display:flex;justify-content:space-between;border-bottom:1px solid #26342c;padding:10px 0}
 </style>
 </head>
 <body>
-<div class="app">
-<header>
-<button class="iconbtn" onclick="go('settings')">☰</button>
-<div class="logo"><div class="ss">SS</div><div class="brand">SEEBO <span>STRENGTH</span></div></div>
-<div class="pill" id="weekPill">v1.5</div>
-</header>
-
-<section id="screen-home">
- <div class="hero">
-  <h1 id="greeting">Good evening, Seebo 👊</h1>
-  <p>Performance Coaching System</p>
-  <p class="mini ok">Version 1.5 active — Seebo Strength premium build.</p>
-  <div class="grid" style="margin-top:14px">
-   <div class="metric"><span>Today</span><b id="todayWorkout">Push A</b></div>
-   <div class="metric"><span>Readiness</span><b id="homeReadiness">—</b></div>
-   <div class="metric"><span>Alignment</span><b id="homeAlignment">—</b></div>
-   <div class="metric"><span>Weekly Volume</span><b id="homeVolume">0kg</b></div>
-  </div>
- </div>
- <div class="card">
-  <div class="row"><h2>Today's Workout</h2><button onclick="go('workout')">Start</button></div>
-  <label class="mini">Switch today's workout</label>
-  <select id="todayWorkoutOverride" onchange="setTodayWorkout(this.value)" style="margin:7px 0 12px"></select>
-  <div id="todayPlan"></div>
- </div>
- <div class="card">
-  <h2>Alignment Score</h2>
-  <div class="grid">
-   <div><div class="ring" id="alignRing" style="--score:0"><div class="ring-inner"><b id="alignScoreBig">0</b><span class="mini">/100</span></div></div></div>
-   <div style="grid-column:span 1"><div id="alignmentBreakdown"></div></div>
-  </div>
- </div>
- <div class="card"><h2>Coach Notes</h2><div id="coachNotes" class="rec"></div></div>
- <div class="card">
-  <h2>Estimated 1RM</h2>
-  <div class="grid">
-   <div class="metric"><span>Bench</span><b id="eBench">105kg</b></div>
-   <div class="metric"><span>Squat</span><b id="eSquat">130kg</b></div>
-   <div class="metric"><span>OHP</span><b id="eOhp">50kg</b></div>
-   <div class="metric"><span>Row</span><b id="eRow">90kg</b></div>
-  </div>
- </div>
-</section>
-
-<section id="screen-workout" class="hide">
- <div class="card">
-  <h2>Workout</h2>
-  <select id="workoutSelect" onchange="renderWorkout()"></select>
-  <div class="edit-actions">
-   <button class="secondary" onclick="toggleWorkoutEditor()">Edit Workout</button>
-   <button class="secondary" onclick="showAddExerciseToWorkout()">Add Exercise</button>
-  </div>
-  <div id="workoutEditor" class="hide" style="margin-top:12px"></div>
- </div>
- <div id="workoutList"></div>
- <div class="card">
-  <h2>Finish Session</h2>
-  <textarea id="sessionNotes" placeholder="Notes, niggles, energy, form..."></textarea>
-  <button style="width:100%;margin-top:10px" onclick="saveWorkout()">Complete Workout</button>
- </div>
-</section>
-
-<section id="screen-progress" class="hide">
- <div class="card">
-  <h2>Progress</h2>
-  <div class="grid">
-   <div class="metric"><span>Sessions</span><b id="pSessions">0</b></div>
-   <div class="metric"><span>Runs</span><b id="pRuns">0</b></div>
-   <div class="metric"><span>Bench e1RM</span><b id="pBench">—</b></div>
-   <div class="metric"><span>Squat e1RM</span><b id="pSquat">—</b></div>
-  </div>
- </div>
- <div class="card"><h2>Latest Coach Recommendations</h2><div id="latestRecommendations"></div></div>
- <div class="card"><h2>Recent Volume</h2><canvas id="volumeChart"></canvas></div>
- <div class="card"><h2>Recent Sessions</h2><div id="recentSessions"></div></div>
-</section>
-
-<section id="screen-exercises" class="hide">
- <div class="card">
-  <h2>Exercise Library</h2>
-  <input id="exerciseSearch" placeholder="Search exercises..." oninput="renderExerciseLibrary()">
-  <div class="row" style="margin-top:8px">
-   <select id="categoryFilter" onchange="renderExerciseLibrary()"><option>All</option><option>Chest</option><option>Back</option><option>Legs</option><option>Shoulders</option><option>Arms</option><option>Core</option><option>Mobility</option></select>
-   <button class="secondary" onclick="toggleAddExercise()">Add</button>
-  </div>
-  <div id="addExercisePanel" class="hide" style="margin-top:12px">
-   <div class="inline-form">
-    <input id="newExName" class="full" placeholder="Exercise name">
-    <input id="newExMuscle" placeholder="Muscle group">
-    <select id="newExType"><option>barbell</option><option>dumbbell</option><option>cable</option><option>bodyweight</option><option>cardio</option><option>mobility</option></select>
-    <input id="newExSets" type="number" placeholder="Sets" value="3">
-    <input id="newExReps" type="number" placeholder="Reps" value="10">
-    <input id="newExWeight" type="number" step="0.5" placeholder="Start kg" value="0">
-    <input id="newExInc" type="number" step="0.5" placeholder="Increase kg" value="2.5">
-    <button class="full" onclick="addExerciseToLibrary()">Add Exercise</button>
-   </div>
-  </div>
- </div>
- <div id="exerciseLibraryList"></div>
-</section>
-
-<section id="screen-recovery" class="hide">
- <div class="card"><h2>Recovery Check-in</h2>
-  <div class="stack">
-   <label>Sleep 1-10<input id="sleep" type="number" min="1" max="10" value="7"></label>
-   <label>Energy 1-10<input id="energy" type="number" min="1" max="10" value="7"></label>
-   <label>Soreness 1-10<input id="soreness" type="number" min="1" max="10" value="3"></label>
-   <label>Stress 1-10<input id="stress" type="number" min="1" max="10" value="4"></label>
-   <button onclick="saveRecovery()">Save Recovery</button>
-  </div>
- </div>
- <div class="card"><h2>Bodyweight</h2><div class="row"><input id="bodyweight" type="number" step="0.1" placeholder="kg"><button onclick="saveWeight()">Save</button></div></div>
- <div class="card"><h2>Run Log</h2><div class="stack"><input id="runDist" type="number" step="0.1" placeholder="Distance km"><input id="runTime" placeholder="Time e.g. 24:30"><input id="runRpe" type="number" min="1" max="10" placeholder="RPE"><button onclick="saveRun()">Save Run</button></div></div>
- <div class="card"><h2>Mobility / Alignment</h2>
-  <div class="stack">
-   <button class="secondary" onclick="logAlignment('Face Pulls')">Log Face Pulls</button>
-   <button class="secondary" onclick="logAlignment('Thoracic Mobility')">Log Thoracic Mobility</button>
-   <button class="secondary" onclick="logAlignment('Hip Mobility')">Log Hip Mobility</button>
-   <button class="secondary" onclick="logAlignment('Post-Workout Stretching')">Log Stretching</button>
-  </div>
- </div>
-</section>
-
-<section id="screen-settings" class="hide">
- <div class="card"><h2>Settings</h2>
-  <div class="stack">
-   <label>Bench 1RM<input id="setBench" type="number"></label>
-   <label>Squat 1RM<input id="setSquat" type="number"></label>
-   <label>OHP 1RM<input id="setOhp" type="number"></label>
-   <label>Row 1RM<input id="setRow" type="number"></label>
-   <label>Units<select id="setUnits"><option>kg</option><option>lbs</option></select></label>
-   <label>Deload every X weeks<input id="setDeload" type="number" value="6"></label>
-   <button onclick="saveSettings()">Save Settings</button>
-  </div>
- </div>
- <div class="card"><h2>Data Backup</h2>
-  <div class="stack">
-   <button class="secondary" onclick="exportData()">Export Backup</button>
-   <textarea id="importBox" placeholder="Paste backup here"></textarea>
-   <button class="secondary" onclick="importData()">Import Backup</button>
-   <button class="danger" onclick="resetData()">Reset App Data</button>
-  </div>
- </div>
-</section>
+<div class="card">
+<h1>SS Seebo Strength</h1>
+<p class="ok">Data Rescue / Full Backup Export</p>
+<p>This page reads your existing Seebo Strength data from this phone and creates a full backup. It does not delete or overwrite anything.</p>
 </div>
 
-<nav class="tabs"><div class="tabbar">
-<button class="tab active" onclick="go('home')">Dashboard</button>
-<button class="tab" onclick="go('workout')">Workouts</button>
-<button class="tab" onclick="go('progress')">Progress</button>
-<button class="tab" onclick="go('exercises')">Exercises</button>
-<button class="tab" onclick="go('recovery')">More</button>
-</div></nav>
+<div class="card">
+<h2>Detected Data</h2>
+<div id="status"></div>
+</div>
+
+<div class="card">
+<h2>Actions</h2>
+<button onclick="copyBackup()">Copy Full Backup</button>
+<button onclick="downloadBackup()">Download Backup File</button>
+<button class="secondary" onclick="showRaw()">Show Raw Backup Text</button>
+<button class="secondary" onclick="location.href='https://saallen90-cmd.github.io/Performance-Coach/?refresh=v15'">Return to App URL</button>
+</div>
+
+<div class="card">
+<h2>Raw Backup</h2>
+<textarea id="raw" placeholder="Tap 'Show Raw Backup Text'"></textarea>
+</div>
 
 <script>
-const LS="seebo_strength_v15";
-const OLD_KEYS=["sam_performance_coach_v5"];
-const kg=x=>(Number(x)||0).toFixed((Number(x)||0)%1?1:0)+"kg";
-const round2_5=x=>Math.round(x/2.5)*2.5;
-const clone=o=>JSON.parse(JSON.stringify(o));
-const slugify=s=>String(s).toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"").slice(0,40)||("ex_"+Date.now());
+const KEYS = ["seebo_strength_v15","seebo_strength_v2","sam_performance_coach_v5"];
+let foundKey = null;
+let foundData = null;
 
-const baseProgram={
-"Push A":[
-{name:"Barbell Bench Press",key:"bench",category:"Chest",muscle:"Chest",type:"barbell",pattern:"Horizontal Push",targetSets:4,targetReps:6,weight:72.5,inc:2.5},
-{name:"Standing Barbell Shoulder Press",key:"ohp",category:"Shoulders",muscle:"Shoulders",type:"barbell",pattern:"Vertical Push",targetSets:3,targetReps:6,weight:32.5,inc:2.5},
-{name:"Weighted / Bodyweight Dips",key:"dips",category:"Chest",muscle:"Chest/Triceps",type:"bodyweight",pattern:"Push",targetSets:3,targetReps:8,weight:0,inc:2.5},
-{name:"Incline Dumbbell Press",key:"incline_db",category:"Chest",muscle:"Chest",type:"dumbbell",pattern:"Incline Push",targetSets:3,targetReps:8,weight:28,inc:2},
-{name:"Cable Triceps Pressdown",key:"pressdown",category:"Arms",muscle:"Triceps",type:"cable",pattern:"Elbow Extension",targetSets:3,targetReps:12,weight:20,inc:2.5},
-{name:"Face Pull",key:"facepull_a",category:"Shoulders",muscle:"Rear Delts",type:"cable",pattern:"Posture",targetSets:3,targetReps:15,weight:15,inc:2.5}],
-"Pull A":[
-{name:"Barbell Bent Over Row",key:"row",category:"Back",muscle:"Back",type:"barbell",pattern:"Horizontal Pull",targetSets:4,targetReps:6,weight:60,inc:2.5},
-{name:"Pull Ups",key:"pullups",category:"Back",muscle:"Back/Biceps",type:"bodyweight",pattern:"Vertical Pull",targetSets:3,targetReps:8,weight:0,inc:2.5},
-{name:"Lat Pulldown",key:"pulldown_a",category:"Back",muscle:"Lats",type:"cable",pattern:"Vertical Pull",targetSets:3,targetReps:10,weight:45,inc:2.5},
-{name:"Seated Cable Row",key:"cablerow_a",category:"Back",muscle:"Mid Back",type:"cable",pattern:"Horizontal Pull",targetSets:3,targetReps:10,weight:45,inc:2.5},
-{name:"Dumbbell Hammer Curl",key:"hammer",category:"Arms",muscle:"Biceps",type:"dumbbell",pattern:"Curl",targetSets:3,targetReps:10,weight:18,inc:2},
-{name:"Reverse Fly",key:"reversefly",category:"Shoulders",muscle:"Rear Delts",type:"dumbbell",pattern:"Posture",targetSets:3,targetReps:15,weight:8,inc:1}],
-"Legs":[
-{name:"Back Squat",key:"squat",category:"Legs",muscle:"Legs",type:"barbell",pattern:"Squat",targetSets:4,targetReps:6,weight:87.5,inc:2.5},
-{name:"Romanian Deadlift",key:"rdl",category:"Legs",muscle:"Posterior Chain",type:"barbell",pattern:"Hinge",targetSets:3,targetReps:8,weight:70,inc:2.5},
-{name:"Bulgarian Split Squat",key:"bss",category:"Legs",muscle:"Quads/Glutes",type:"dumbbell",pattern:"Single Leg",targetSets:3,targetReps:10,weight:22,inc:2},
-{name:"Standing Calf Raise",key:"calf",category:"Legs",muscle:"Calves",type:"dumbbell",pattern:"Calf",targetSets:4,targetReps:15,weight:40,inc:2.5},
-{name:"Hanging Leg Raise",key:"hangingleg",category:"Core",muscle:"Core",type:"bodyweight",pattern:"Core",targetSets:3,targetReps:12,weight:0,inc:1},
-{name:"Pallof Press",key:"pallof",category:"Core",muscle:"Core",type:"cable",pattern:"Anti-Rotation",targetSets:3,targetReps:12,weight:10,inc:2.5}],
-"Push B":[
-{name:"Incline Barbell Bench Press",key:"incline_bar",category:"Chest",muscle:"Upper Chest",type:"barbell",pattern:"Incline Push",targetSets:3,targetReps:10,weight:67.5,inc:2.5},
-{name:"Seated Dumbbell Shoulder Press",key:"db_press",category:"Shoulders",muscle:"Shoulders",type:"dumbbell",pattern:"Vertical Push",targetSets:3,targetReps:10,weight:22,inc:2},
-{name:"Dumbbell Lateral Raise",key:"lateral",category:"Shoulders",muscle:"Side Delts",type:"dumbbell",pattern:"Isolation",targetSets:3,targetReps:15,weight:12,inc:1},
-{name:"Cable Fly",key:"cablefly",category:"Chest",muscle:"Chest",type:"cable",pattern:"Fly",targetSets:3,targetReps:15,weight:15,inc:2.5},
-{name:"Overhead Triceps Extension",key:"ohtri",category:"Arms",muscle:"Triceps",type:"cable",pattern:"Elbow Extension",targetSets:3,targetReps:12,weight:15,inc:2.5}],
-"Pull B":[
-{name:"Chest Supported Dumbbell Row",key:"csrow",category:"Back",muscle:"Back",type:"dumbbell",pattern:"Horizontal Pull",targetSets:3,targetReps:10,weight:32,inc:2},
-{name:"Wide Grip Lat Pulldown",key:"pulldown_b",category:"Back",muscle:"Lats",type:"cable",pattern:"Vertical Pull",targetSets:3,targetReps:12,weight:42.5,inc:2.5},
-{name:"Seated Cable Row",key:"cablerow_b",category:"Back",muscle:"Mid Back",type:"cable",pattern:"Horizontal Pull",targetSets:3,targetReps:12,weight:42.5,inc:2.5},
-{name:"Incline Dumbbell Curl",key:"inclinecurl",category:"Arms",muscle:"Biceps",type:"dumbbell",pattern:"Curl",targetSets:3,targetReps:12,weight:14,inc:1},
-{name:"Face Pull",key:"facepull_b",category:"Shoulders",muscle:"Rear Delts",type:"cable",pattern:"Posture",targetSets:3,targetReps:20,weight:12.5,inc:2.5},
-{name:"Farmer Carries",key:"farmers",category:"Core",muscle:"Grip/Core/Posture",type:"dumbbell",pattern:"Carry",targetSets:3,targetReps:40,weight:40,inc:2}]
-};
-const stretches={push:["Doorway chest stretch","Thoracic extension over bench","Cross-body shoulder stretch","Triceps stretch"],pull:["Lat stretch","Child's pose with side reach","Biceps wall stretch","Open books"],legs:["Hip flexor stretch","Hamstring stretch","Pigeon stretch","Calf stretch"]};
+function safeParse(x){try{return JSON.parse(x)}catch(e){return null}}
 
-function defaultState(){return{version:"1.5",week:1,dayOverrides:{},customProgram:clone(baseProgram),exerciseLibrary:null,workouts:[],runs:[],recovery:[],weights:[],alignment:[],targets:{},oneRM:{bench:105,squat:130,ohp:50,row:90},settings:{units:"kg",deloadWeeks:6}}}
-function load(){try{let s=JSON.parse(localStorage.getItem(LS)); if(s)return s; for(const k of OLD_KEYS){let o=JSON.parse(localStorage.getItem(k)||"null"); if(o){o.version="1.5";o.customProgram=o.customProgram||clone(baseProgram);o.settings=o.settings||{units:"kg",deloadWeeks:6};o.alignment=o.alignment||[];return o}}}catch(e){} return defaultState()}
-let state=load();
-function persist(){localStorage.setItem(LS,JSON.stringify(state))}
-function getProgram(){if(!state.customProgram)state.customProgram=clone(baseProgram);return state.customProgram}
-function allLibraryExercises(){if(!state.exerciseLibrary){let seen={},arr=[];Object.values(baseProgram).flat().forEach(e=>{if(!seen[e.key]){seen[e.key]=1;arr.push(clone(e))}});state.exerciseLibrary=arr;persist()}return state.exerciseLibrary}
-function initTargets(){Object.values(getProgram()).flat().concat(allLibraryExercises()).forEach(ex=>{if(!state.targets[ex.key])state.targets[ex.key]={weight:+ex.weight||0,targetReps:+ex.targetReps||8}});persist()}
-initTargets();
-
-function dateKey(d=new Date()){return d.toISOString().slice(0,10)}
-function scheduledWorkoutName(d=new Date()){return{1:"Push A",2:"Pull A",3:"Run",4:"Legs",5:"Push B",6:"Pull B",0:"Rest"}[d.getDay()]}
-function todayWorkoutName(){return state.dayOverrides[dateKey()]||scheduledWorkoutName()}
-function setTodayWorkout(n){state.dayOverrides[dateKey()]=n;persist();if(getProgram()[n])workoutSelect.value=n;renderHome();renderWorkout()}
-function go(id){["home","workout","progress","exercises","recovery","settings"].forEach(s=>document.getElementById("screen-"+s).classList.toggle("hide",s!==id));document.querySelectorAll(".tab").forEach((b,i)=>b.classList.toggle("active",["home","workout","progress","exercises","recovery"][i]===id)); if(id==="home")renderHome(); if(id==="workout")renderWorkout(); if(id==="progress")renderProgress(); if(id==="exercises")renderExerciseLibrary(); if(id==="settings")renderSettings(); window.scrollTo(0,0)}
-
-function latestRecovery(){return state.recovery.at(-1)}
-function readinessScore(){let r=latestRecovery();return r?Math.round((+r.sleep + +r.energy + (11-+r.soreness) + (11-+r.stress))/4):null}
-function weeklyVolume(){let since=Date.now()-7*864e5;return Math.round(state.workouts.filter(w=>new Date(w.date)>since).reduce((s,w)=>s+w.volume,0))}
-function alignmentScore(){let since=Date.now()-7*864e5;let items=["Face Pulls","Thoracic Mobility","Hip Mobility","Post-Workout Stretching"];let done=items.map(i=>state.alignment.filter(a=>a.type===i&&new Date(a.date)>since).length);let run=state.runs.filter(r=>new Date(r.date)>since).length;let score=Math.min(100,Math.round(((Math.min(done[0],2)/2)+(Math.min(done[1],2)/2)+(Math.min(done[2],2)/2)+(Math.min(done[3],3)/3)+(Math.min(run,1)/1))/5*100));return{score,done,run,items}}
-function average(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:0}
-function epley(w,r){return w*(1+r/30)}
-function progressionDecision(ex,sets){let valid=sets.filter(s=>+s.reps>0),target=+ex.targetReps||8,inc=+ex.inc||2.5,weight=Math.max(...valid.map(s=>+s.weight||0),+ex.weight||0),reps=valid.map(s=>+s.reps||0),rpes=valid.map(s=>+s.rpe||0).filter(Boolean),avg=average(rpes),min=reps.length?Math.min(...reps):0,all=valid.length>=(+ex.targetSets||1)&&reps.every(r=>r>=target),exceed=all&&reps.every(r=>r>=target+2);let action="hold",next=weight,reason="Repeat the same weight next time.";if(all&&(avg===0||avg<=8.5)){action="increase";next=round2_5(weight+inc);reason=avg?`All target reps completed at average RPE ${avg.toFixed(1)}.`:"All target reps completed."}if(exceed&&(avg===0||avg<=8)){action="increase";next=round2_5(weight+inc);reason="You exceeded the target reps and still had more available."}if(all&&avg>=9){action="hold";next=weight;reason=`Reps completed, but RPE averaged ${avg.toFixed(1)}. Hold weight.`}if(!all&&min>=target-1){action="hold";reason="Very close. Repeat this weight."}if(min<=Math.max(1,target-3)&&avg>=9){action="reduce";next=Math.max(0,round2_5(weight*.95));reason=`Reps dropped and RPE was high. Reduce slightly and rebuild.`}return{action,nextWeight:next,reason,avgRpe:avg}}
-function recClass(a){return a==="reduce"?"rec reduce":a==="hold"?"rec hold":"rec"}
-
-function renderHome(){
- let h=new Date().getHours();greeting.innerText=(h<12?"Good morning":"Good evening")+", Seebo 👊";
- todayWorkout.innerText=todayWorkoutName();homeReadiness.innerText=readinessScore()?readinessScore()+"/10":"—";homeVolume.innerText=weeklyVolume().toLocaleString()+"kg";
- let al=alignmentScore();homeAlignment.innerText=al.score+"/100";alignScoreBig.innerText=al.score;alignRing.style.setProperty("--score",al.score);
- todayWorkoutOverride.innerHTML=["Push A","Pull A","Run","Legs","Push B","Pull B","Rest"].map(o=>`<option ${o===todayWorkoutName()?"selected":""}>${o}</option>`).join("");
- let tw=todayWorkoutName(),plan=""; if(getProgram()[tw])getProgram()[tw].forEach(ex=>{let t=state.targets[ex.key];plan+=`<div class="listitem"><div><b>${ex.name}</b><br><span class="mini">${ex.targetSets}×${ex.targetReps} • ${ex.muscle}</span></div><div class="badge">${ex.type==="bodyweight"&&t.weight===0?"BW":kg(t.weight)}</div></div>`}); else plan=tw==="Run"?"<p>Run 4-5km easy. Log time, distance and RPE afterwards.</p>":"<p>Full rest day. Optional mobility only.</p>";todayPlan.innerHTML=plan;
- alignmentBreakdown.innerHTML=al.items.map((i,idx)=>`<div class="listitem"><span>${i}</span><b>${al.done[idx]}</b></div>`).join("")+`<div class="listitem"><span>Running</span><b>${al.run}</b></div>`;
- let notes=[];let rs=readinessScore();notes.push(rs?rs>=8?"Green light. Train normally.":rs>=6?"Amber. Keep weights controlled.":"Low readiness. Reduce intensity today.":"Complete recovery check-in to personalise intensity.");let latest=state.workouts.at(-1);if(latest?.exercises?.[0]?.progression)notes.push(`Latest: ${latest.exercises[0].name} → ${kg(latest.exercises[0].progression.nextWeight)} next time.`);coachNotes.innerHTML=notes.join("<br>");
- eBench.innerText=kg(state.oneRM.bench);eSquat.innerText=kg(state.oneRM.squat);eOhp.innerText=kg(state.oneRM.ohp);eRow.innerText=kg(state.oneRM.row);
+function detect(){
+  let html = "";
+  for(const k of KEYS){
+    const raw = localStorage.getItem(k);
+    const parsed = raw ? safeParse(raw) : null;
+    if(raw && parsed && !foundData){
+      foundKey = k;
+      foundData = parsed;
+    }
+    html += `<div class="stat"><span>${k}</span><b class="${raw?'ok':'warn'}">${raw ? 'Found' : 'Not found'}</b></div>`;
+  }
+  if(foundData){
+    const workouts = foundData.workouts || foundData.workoutSessions || [];
+    const runs = foundData.runs || [];
+    const recovery = foundData.recovery || [];
+    const targets = foundData.targets || {};
+    html += `<hr style="border:0;border-top:1px solid #26342c;margin:14px 0">`;
+    html += `<div class="stat"><span>Using key</span><b>${foundKey}</b></div>`;
+    html += `<div class="stat"><span>Version</span><b>${foundData.version || foundData.appVersion || "Unknown"}</b></div>`;
+    html += `<div class="stat"><span>Completed workouts</span><b>${workouts.length}</b></div>`;
+    html += `<div class="stat"><span>Runs</span><b>${runs.length}</b></div>`;
+    html += `<div class="stat"><span>Recovery logs</span><b>${recovery.length}</b></div>`;
+    html += `<div class="stat"><span>Targets</span><b>${Object.keys(targets).length}</b></div>`;
+  } else {
+    html += `<p class="bad">No Seebo Strength data found in local storage on this browser. Make sure you opened this page from the same iPhone/Safari app where you logged your workouts.</p>`;
+  }
+  document.getElementById("status").innerHTML = html;
 }
-function renderWorkout(){let sel=workoutSelect;if(!sel.innerHTML)sel.innerHTML=Object.keys(getProgram()).map(w=>`<option>${w}</option>`).join("");let tw=todayWorkoutName();if(getProgram()[tw])sel.value=tw;let name=sel.value,list=workoutList;list.innerHTML="";(getProgram()[name]||[]).forEach(ex=>{let t=state.targets[ex.key]||{weight:ex.weight};let note=t.lastReason?`<div class="${recClass(t.lastAction)}"><b>Next target: ${kg(t.weight)}</b><div class="mini">${t.lastReason}</div></div>`:"";let s=`<div class="exercise"><div class="exercise-title"><div><b>${ex.name}</b><br><span class="mini">${ex.muscle} • ${ex.pattern||ex.type} • ${ex.targetSets}×${ex.targetReps}</span></div><div class="badge">${ex.type==="bodyweight"&&t.weight===0?"BW":kg(t.weight)}</div></div><div class="setgrid"><label>Set</label><label>KG</label><label>Reps</label><label>RPE</label>`;for(let i=1;i<=ex.targetSets;i++)s+=`<div class="setnum">${i}</div><input id="${ex.key}_w_${i}" type="number" step="0.5" value="${t.weight}"><input id="${ex.key}_r_${i}" type="number" value="${ex.targetReps}"><input id="${ex.key}_rpe_${i}" type="number" min="1" max="10" placeholder="8">`;s+=`</div><div class="row" style="margin-top:10px"><button class="ghost" onclick="adjust('${ex.key}',-2.5)">-2.5</button><button class="ghost" onclick="repeatPrev('${ex.key}')">Previous</button><button class="ghost" onclick="adjust('${ex.key}',2.5)">+2.5</button></div>${note}</div>`;list.innerHTML+=s});renderWorkoutEditor()}
-function adjust(k,d){document.querySelectorAll(`[id^="${k}_w_"]`).forEach(i=>i.value=(+i.value+d).toFixed(1).replace(".0",""))}
-function previousExercise(k){for(let i=state.workouts.length-1;i>=0;i--){let e=state.workouts[i].exercises.find(x=>x.key===k);if(e)return e}return null}
-function repeatPrev(k){let p=previousExercise(k);if(!p)return alert("No previous data.");p.sets.forEach((s,i)=>{let n=i+1;if(document.getElementById(`${k}_w_${n}`)){document.getElementById(`${k}_w_${n}`).value=s.weight;document.getElementById(`${k}_r_${n}`).value=s.reps;document.getElementById(`${k}_rpe_${n}`).value=s.rpe||""}})}
-function saveWorkout(){let name=workoutSelect.value,exercises=[],total=0;(getProgram()[name]||[]).forEach(ex=>{let sets=[],vol=0,best=0;for(let i=1;i<=ex.targetSets;i++){let weight=+document.getElementById(`${ex.key}_w_${i}`).value||0,reps=+document.getElementById(`${ex.key}_r_${i}`).value||0,rpe=+document.getElementById(`${ex.key}_rpe_${i}`).value||0;sets.push({weight,reps,rpe});vol+=weight*reps;if(weight&&reps)best=Math.max(best,epley(weight,reps))}let dec=progressionDecision(ex,sets),t=state.targets[ex.key]||{};t.weight=dec.nextWeight;t.targetReps=ex.targetReps;t.lastAction=dec.action;t.lastReason=dec.reason;state.targets[ex.key]=t;if(["bench","squat","ohp","row"].includes(ex.key)&&best>state.oneRM[ex.key])state.oneRM[ex.key]=round2_5(best);exercises.push({...ex,sets,volume:vol,summary:sets.map(s=>s.reps).join("/")+" @ "+kg(sets[0].weight),progression:dec});total+=vol});state.workouts.push({date:new Date().toISOString(),name,notes:sessionNotes.value,volume:total,exercises});sessionNotes.value="";persist();alert("Workout saved. Smart progression updated.");renderHome();renderWorkout()}
-function toggleWorkoutEditor(){workoutEditor.classList.toggle("hide");renderWorkoutEditor()}
-function renderWorkoutEditor(){if(workoutEditor.classList.contains("hide"))return;let name=workoutSelect.value;workoutEditor.innerHTML=`<h3>Edit ${name}</h3>`+(getProgram()[name]||[]).map((ex,i)=>`<div class="library-card"><b>${ex.name}</b><div class="inline-form" style="margin-top:8px"><input value="${ex.name}" onchange="editWorkoutExercise('${name}',${i},'name',this.value)"><input value="${ex.muscle}" onchange="editWorkoutExercise('${name}',${i},'muscle',this.value)"><input type="number" value="${ex.targetSets}" onchange="editWorkoutExercise('${name}',${i},'targetSets',this.value)"><input type="number" value="${ex.targetReps}" onchange="editWorkoutExercise('${name}',${i},'targetReps',this.value)"><input type="number" step="0.5" value="${ex.weight}" onchange="editWorkoutExercise('${name}',${i},'weight',this.value)"><input type="number" step="0.5" value="${ex.inc}" onchange="editWorkoutExercise('${name}',${i},'inc',this.value)"></div><div class="edit-actions"><button class="ghost" onclick="moveExercise('${name}',${i},-1)">Up</button><button class="ghost" onclick="moveExercise('${name}',${i},1)">Down</button><button class="danger" onclick="removeExerciseFromWorkout('${name}',${i})">Remove</button></div></div>`).join("")}
-function editWorkoutExercise(w,i,f,v){let ex=getProgram()[w][i];if(["targetSets","targetReps"].includes(f))v=parseInt(v)||1;if(["weight","inc"].includes(f))v=parseFloat(v)||0;ex[f]=v;if(f==="weight")state.targets[ex.key].weight=v;persist();renderWorkout()}
-function moveExercise(w,i,d){let a=getProgram()[w],n=i+d;if(n<0||n>=a.length)return;[a[i],a[n]]=[a[n],a[i]];persist();renderWorkoutEditor();renderWorkout()}
-function removeExerciseFromWorkout(w,i){if(confirm("Remove exercise?")){getProgram()[w].splice(i,1);persist();renderWorkout()}}
-function showAddExerciseToWorkout(){let name=workoutSelect.value,lib=allLibraryExercises(),choice=prompt("Enter exercise number:\n\n"+lib.map((e,i)=>`${i+1}. ${e.name}`).join("\n"));let i=parseInt(choice)-1;if(lib[i]){getProgram()[name].push(clone(lib[i]));persist();renderWorkout()}}
-function renderProgress(){pSessions.innerText=state.workouts.length;pRuns.innerText=state.runs.length;pBench.innerText=kg(state.oneRM.bench);pSquat.innerText=kg(state.oneRM.squat);let latest=state.workouts.at(-1);latestRecommendations.innerHTML=latest?latest.exercises.map(e=>`<div class="${recClass(e.progression.action)}"><b>${e.name}: ${kg(e.progression.nextWeight)} next time</b><div class="mini">${e.progression.reason}</div></div>`).join(""):"<p>No recommendations yet.</p>";recentSessions.innerHTML=state.workouts.slice(-8).reverse().map(w=>`<div class="listitem"><div><b>${w.name}</b><br><span class="mini">${new Date(w.date).toLocaleDateString("en-GB")} • ${w.exercises.length} exercises</span></div><b>${Math.round(w.volume).toLocaleString()}kg</b></div>`).join("")||"<p>No sessions yet.</p>";drawVolume()}
-function drawVolume(){let c=volumeChart,ctx=c.getContext("2d"),dpr=devicePixelRatio||1;c.width=c.clientWidth*dpr;c.height=180*dpr;ctx.scale(dpr,dpr);ctx.clearRect(0,0,c.clientWidth,180);let vals=state.workouts.slice(-10).map(w=>w.volume);if(!vals.length){ctx.fillStyle="#a6ada8";ctx.fillText("No data yet",20,90);return}let max=Math.max(...vals)*1.1,w=c.clientWidth/vals.length;vals.forEach((v,i)=>{let h=v/max*130;ctx.fillStyle="#39d353";ctx.fillRect(i*w+8,150-h,w-16,h)})}
-function toggleAddExercise(){addExercisePanel.classList.toggle("hide")}
-function renderExerciseLibrary(){let q=(exerciseSearch?.value||"").toLowerCase(),cat=categoryFilter?.value||"All";exerciseLibraryList.innerHTML=allLibraryExercises().filter(e=>(cat==="All"||e.category===cat||e.muscle.includes(cat))&&e.name.toLowerCase().includes(q)).map((e,i)=>`<div class="library-card"><div class="row"><div><b>${e.name}</b><br><span class="mini">${e.category||e.muscle} • ${e.type} • ${e.pattern||""}</span></div><button class="ghost" onclick="toggleFavourite('${e.key}')">${e.fav?"★":"☆"}</button></div><div class="row" style="margin-top:8px"><select id="libadd_${i}">${Object.keys(getProgram()).map(w=>`<option>${w}</option>`).join("")}</select><button onclick="addLibToWorkout('${e.key}',document.getElementById('libadd_${i}').value)">Add</button></div></div>`).join("")}
-function addExerciseToLibrary(){let name=newExName.value.trim();if(!name)return alert("Add a name first.");let ex={name,key:"custom_"+slugify(name)+"_"+Date.now().toString().slice(-5),category:newExMuscle.value||"Custom",muscle:newExMuscle.value||"General",type:newExType.value,pattern:"Custom",targetSets:+newExSets.value||3,targetReps:+newExReps.value||10,weight:+newExWeight.value||0,inc:+newExInc.value||2.5};allLibraryExercises().push(ex);state.targets[ex.key]={weight:ex.weight,targetReps:ex.targetReps};persist();newExName.value="";renderExerciseLibrary()}
-function addLibToWorkout(key,w){let ex=allLibraryExercises().find(e=>e.key===key);if(ex){getProgram()[w].push(clone(ex));persist();alert(ex.name+" added to "+w)}}
-function toggleFavourite(key){let e=allLibraryExercises().find(x=>x.key===key);if(e){e.fav=!e.fav;persist();renderExerciseLibrary()}}
-function saveRecovery(){state.recovery.push({date:new Date().toISOString(),sleep:+sleep.value,energy:+energy.value,soreness:+soreness.value,stress:+stress.value});persist();renderHome();alert("Recovery saved.")}
-function saveWeight(){if(!bodyweight.value)return;state.weights.push({date:new Date().toISOString(),kg:+bodyweight.value});bodyweight.value="";persist();renderHome()}
-function saveRun(){if(!runDist.value)return;state.runs.push({date:new Date().toISOString(),distance:+runDist.value,time:runTime.value,rpe:+runRpe.value});runDist.value=runTime.value=runRpe.value="";persist();renderHome();alert("Run saved.")}
-function logAlignment(type){state.alignment.push({date:new Date().toISOString(),type});persist();renderHome();alert(type+" logged.")}
-function renderSettings(){setBench.value=state.oneRM.bench;setSquat.value=state.oneRM.squat;setOhp.value=state.oneRM.ohp;setRow.value=state.oneRM.row;setUnits.value=state.settings.units||"kg";setDeload.value=state.settings.deloadWeeks||6}
-function saveSettings(){state.oneRM={bench:+setBench.value,squat:+setSquat.value,ohp:+setOhp.value,row:+setRow.value};state.settings.units=setUnits.value;state.settings.deloadWeeks=+setDeload.value;persist();renderHome();alert("Settings saved.")}
-function exportData(){let data=JSON.stringify(state,null,2);navigator.clipboard?.writeText(data);prompt("Copy backup:",data)}
-function importData(){try{state=JSON.parse(importBox.value);persist();location.reload()}catch(e){alert("Invalid backup.")}}
-function resetData(){if(confirm("Reset all data?")){localStorage.removeItem(LS);location.reload()}}
-function setup(){weekPill.innerText="v1.5";workoutSelect.innerHTML=Object.keys(getProgram()).map(w=>`<option>${w}</option>`).join("");let tw=todayWorkoutName();if(getProgram()[tw])workoutSelect.value=tw;renderHome();renderWorkout()}
-if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}))}
-setup();
+
+function backupObject(){
+  return {
+    exportedAt: new Date().toISOString(),
+    rescueVersion: "1.0",
+    sourceKey: foundKey,
+    data: foundData
+  };
+}
+
+function backupText(){
+  return JSON.stringify(backupObject(), null, 2);
+}
+
+async function copyBackup(){
+  if(!foundData){alert("No data found.");return;}
+  const text = backupText();
+  try{
+    await navigator.clipboard.writeText(text);
+    alert("Full backup copied. Paste it into Notes or send it to yourself.");
+  }catch(e){
+    document.getElementById("raw").value = text;
+    alert("Clipboard blocked. Raw backup text is shown below — select all and copy it.");
+  }
+}
+
+function downloadBackup(){
+  if(!foundData){alert("No data found.");return;}
+  const text = backupText();
+  const blob = new Blob([text], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const date = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `seebo-strength-backup-${date}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+function showRaw(){
+  if(!foundData){alert("No data found.");return;}
+  document.getElementById("raw").value = backupText();
+}
+
+detect();
 </script>
 </body>
 </html>
