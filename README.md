@@ -1,21 +1,16 @@
-# Seebo Strength v2.0
+# Seebo Strength v2.0.1 Hotfix
 
-Major rebuild:
-- Modular app structure
-- Data migration from v1.5 and earlier
-- Editable previous workouts
-- Workout history with performance detail
-- Calendar view
-- Rest timer
-- Post-workout stretches restored
-- Double progression using rep ranges + RPE
-- Recalculates recommendations after editing history
-- Backup/restore retained
+Fixes blank dashboard caused by older v1.5 storage format.
 
-Upload the full folder contents to your GitHub repository root. Keep the folders:
-- css
-- js
-- data
+Upload/replace all files and folders:
+- index.html
+- manifest.webmanifest
+- service-worker.js
+- icon-192.png
+- icon-512.png
+- css/
+- js/
+- data/
 
-Open after deployment:
-https://saallen90-cmd.github.io/Performance-Coach/?refresh=v20
+Open:
+https://saallen90-cmd.github.io/Performance-Coach/index.html?refresh=v201
