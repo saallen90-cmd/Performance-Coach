@@ -1,16 +1,6 @@
-# Seebo Strength v2.0.1 Hotfix
+Seebo Strength v2.0.2 stable single-file build.
 
-Fixes blank dashboard caused by older v1.5 storage format.
+Upload root files only:
+index.html, manifest.webmanifest, service-worker.js, icon-192.png, icon-512.png
 
-Upload/replace all files and folders:
-- index.html
-- manifest.webmanifest
-- service-worker.js
-- icon-192.png
-- icon-512.png
-- css/
-- js/
-- data/
-
-Open:
-https://saallen90-cmd.github.io/Performance-Coach/index.html?refresh=v201
+Open: https://saallen90-cmd.github.io/Performance-Coach/index.html?refresh=v202stable
